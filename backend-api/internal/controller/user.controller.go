@@ -2,8 +2,7 @@ package controller
 
 import (
 	"GOLANG/github.com/HwuuPhuc0904/backend-api/internal/service"
-	"net/http"
-
+	"GOLANG/github.com/HwuuPhuc0904/backend-api/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,9 +23,5 @@ func NewUserController() *UserController {
 
 //controller -> service -> repo -> model -> db
 func (uc * UserController) GetUserByID(c *gin.Context) {
-	uid := c.Query("uid")
-	c.JSON(http.StatusOK, gin.H{
-		"message": "pong" + uc.userService.GetUserByID(),
-		"uid":     uid,
-	})
+	response.SuccessResponse(c, 2001, uc.userService.GetUserByID())
 }
