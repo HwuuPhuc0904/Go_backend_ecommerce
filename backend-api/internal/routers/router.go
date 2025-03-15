@@ -1,12 +1,40 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
 	c "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/controller"
+	"GOLANG/github.com/HwuuPhuc0904/backend-api/internal/middleware"
+	"fmt"
+
+	"github.com/gin-gonic/gin"
 )
+
+func AA() gin.HandlerFunc {
+	return func(c* gin.Context){
+		fmt.Println("Before --> AA")
+		c.Next()
+		fmt.Println("After --> AA")
+	}
+}
+func BB() gin.HandlerFunc {
+	return func(c* gin.Context){
+		fmt.Println("Before --> BB")
+		c.Next()
+		fmt.Println("After --> BB")
+	}
+}
+func CC(c * gin.Context)  {
+		fmt.Println("Before --> AA")
+		c.Next()
+		fmt.Println("After --> AA")
+}
+
+
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
+
+	// use middleware
+	r.Use(middleware.AuthMiddleware(), BB() , CC)
 
 	v1 := r.Group("v1/2024")
 	{
