@@ -3,6 +3,13 @@ server:
 mysql:
   host: localhost
   port: 3306
-  username: root
-  password: root
-  database: test
+  username: devuser
+  password: PhucDZ@2004!
+  database: myapp
+logger:
+  level: debug
+  maxsize: 5
+  maxbackup: 3
+  maxage: 28
+  compress: true
+  filepath: "./storage/log_xxx.log"

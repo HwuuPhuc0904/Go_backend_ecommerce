@@ -1,0 +1,33 @@
+# Ignore config files with sensitive information
+/configs/local.yaml
+/configs/dev.yaml
+/configs/production.yaml
+
+# Or ignore all config files except templates
+/configs/*.yaml
+!/configs/template.yaml
+
+# Ignore log files
+/storage/*.log
+
+# Binary files
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# IDE directories
+.idea/
+.vscode/
+*.swp
