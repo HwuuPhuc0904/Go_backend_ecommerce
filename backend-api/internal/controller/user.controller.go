@@ -1,27 +1,53 @@
 package controller
 
 import (
+	"GOLANG/github.com/HwuuPhuc0904/backend-api/global"
 	"GOLANG/github.com/HwuuPhuc0904/backend-api/internal/service"
-	"GOLANG/github.com/HwuuPhuc0904/backend-api/pkg/response"
+	"net/http"
 	"github.com/gin-gonic/gin"
+    "go.uber.org/zap"
+	
+	"strconv"
 )
 
 type UserController struct {
-	userService *service.UserService
+	UserService * service.UserService
 }
 
 func NewUserController() *UserController {
-	return &UserController{
-		userService: service.NewUserService(),
+	return &UserController {
+		UserService: service.NewUserService(),
 	}
 }
 
-// Đây là phương thức viết hàm kiểu method with Receiver(Phương thức với bộ nhận) 
-// (uc *UserController) là phần receiver - xác định rằng hàm này là một phương thức của struct UserController
-// *UserController biểu thị rằng đây là một con trỏ đến kiểu UserController
-// uc là tên biến cho receiver được sử dụng bên trong phương thức
 
-//controller -> service -> repo -> model -> db
-func (uc * UserController) GetUserByID(c *gin.Context) {
-	response.SuccessResponse(c, 2001, uc.userService.GetUserByID())
+// GetUserByID lấy thông tin người dùng theo ID
+func (uc *UserController) GetUserByID(c *gin.Context) {
+    // Lấy id từ param
+    idParam := c.Param("id")
+    id, err := strconv.ParseUint(idParam, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "success": false,
+            "message": "ID không hợp lệ",
+        })
+        return
+    }
+
+    // Gọi service để lấy thông tin user
+    user, err := uc.UserService.GetUserByID(uint(id))
+    if err != nil {
+        global.Logger.Error("Không tìm thấy người dùng", zap.Error(err))
+        c.JSON(http.StatusNotFound, gin.H{
+            "success": false,
+            "message": "Người dùng không tồn tại",
+        })
+        return
+    }
+
+    // Trả về kết quả thành công
+    c.JSON(http.StatusOK, gin.H{
+        "success": true,
+        "data":    user,
+    })
 }

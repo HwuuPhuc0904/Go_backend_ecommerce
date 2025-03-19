@@ -6,7 +6,6 @@
 # Or ignore all config files except templates
 /configs/*.yaml
 !/configs/template.yaml
-
 # Ignore log files
 /storage/*.log
 
