@@ -1,1 +1,1 @@
-# Building a stỏre back-end using golang and mysql for db
+# Building a store back-end using golang and mysql for db
