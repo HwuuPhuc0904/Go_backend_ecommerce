@@ -16,11 +16,6 @@ func Run() {
         panic(err)
     }
     
-    // Thêm dữ liệu mẫu
-    if err := migrations.SeedData(); err != nil {
-        global.Logger.Error("Data seeding failed", zap.Error(err))
-        panic(err)
-    }
 	InitRedis()
 	InitRouters()
 }

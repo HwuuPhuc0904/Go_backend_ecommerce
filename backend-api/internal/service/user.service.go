@@ -6,8 +6,6 @@ import (
 	"GOLANG/github.com/HwuuPhuc0904/backend-api/global"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
-	"time"
-
 )
 
 type UserService struct {
@@ -39,22 +37,4 @@ func (s *UserService) CreateUser(user *model.User) error {
     user.Password = string(hashedPassword)
     
     return s.UserRepo.CreateUser(user)
-}
-
-func (s *UserService) UpdateProfile(id uint, firstName, lastName, phone string) (*model.User, error) {
-    user, err := s.UserRepo.GetUserByID(id)
-    if err != nil {
-        return nil, err
-    }
-    
-    user.FirstName = firstName
-    user.LastName = lastName
-    user.Phone = phone
-    user.UpdatedAt = time.Now()
-    
-    if err := s.UserRepo.UpdateUser(user); err != nil {
-        return nil, err
-    }
-    
-    return user, nil
 }
