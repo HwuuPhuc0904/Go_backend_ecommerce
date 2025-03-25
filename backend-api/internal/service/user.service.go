@@ -6,6 +6,8 @@ import (
 	"GOLANG/github.com/HwuuPhuc0904/backend-api/global"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"errors"
+	"time"
 )
 
 type UserService struct {
@@ -18,23 +20,44 @@ func NewUserService() *UserService {
 	}
 }
 
-func (us * UserService) GetUserByID(id uint) (*model.User, error) {
-	global.Logger.Info("Getting user by Id", zap.Uint("id", id))
+func  (us *UserService) GetUserByID(id uint) (*model.User, error) {
+	global.Logger.Info("GetUserByID : ", zap.Uint("id", id))
 	return us.UserRepo.GetUserByID(id)
 }
 
-func(us * UserService) GetUserByEmail(email string) (*model.User, error) {
-	global.Logger.Info("Getting user by email", zap.String("email", email))
-	return us.UserRepo.GetUserByEmail(email)	
+func (us *UserService) GetUserByEmail(email string) (*model.User, error) {
+	global.Logger.Info("GetUserByEmail : ", zap.String("email", email))
+	return us.UserRepo.GetUserByEmail(email)
 }
 
-func (s *UserService) CreateUser(user *model.User) error {
-    // Hash password trước khi lưu
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return err
-    }
-    user.Password = string(hashedPassword)
-    
-    return s.UserRepo.CreateUser(user)
+func (us *UserService) CreateUser(user *model.User) error {
+	//checking for existing user
+	existing, err := us.UserRepo.GetUserByEmail(user.Email)
+	if err == nil && existing != nil {
+		return errors.New("user already exists")
+	} else if err != nil && err.Error() != "user not found" {
+		return err
+	}
+
+	// Hashing password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		global.Logger.Error("Failed to hash password", zap.Error(err))
+		return errors.New("internal server error")
+	}
+	user.Password = string(hashedPassword)
+
+	// setting default 
+	user.Role = "user"
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+
+	return us.UserRepo.CreateUser(user)
+	
+}
+
+//Update User Information
+
+func (us *UserService) UpdateUser(user_update *model.User) error {
+	
 }

@@ -6,11 +6,50 @@ import (
 
 // User Model
 type User struct {
-    ID       uint   `gorm:"primaryKey"`
-    Name     string `gorm:"size:100"`
-    Email    string `gorm:"size:100;unique"`
-    Password string `gorm:"size:100"`
-    Role     string `gorm:"size:20"`
+    ID            uint      `gorm:"primaryKey"`
+    Name          string    `gorm:"size:100"`
+    Email         string    `gorm:"size:100;unique"`
+    Password      string    `gorm:"size:100"`
+    Role          string    `gorm:"size:20"` // 'admin', 'customer', 'seller'
+    IsActive      bool      `gorm:"default:true"`
+    EmailVerified bool      `gorm:"default:false"`
+    LastLogin     time.Time
+    CreatedAt     time.Time
+    UpdatedAt     time.Time
+    DeletedAt     *time.Time `gorm:"index"`
+    Permissions   []Permission `gorm:"many2many:user_permissions;"`
+}
+// Role Model
+type Role struct {
+    ID          uint   `gorm:"primaryKey"`
+    Name        string `gorm:"size:50;unique"`
+    Description string `gorm:"size:255"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+    Permissions []Permission `gorm:"many2many:role_permissions;"`
+}
+
+// Permission Model - Định nghĩa các quyền chi tiết
+type Permission struct {
+    ID          uint   `gorm:"primaryKey"`
+    Name        string `gorm:"size:100;unique"` 
+    Description string `gorm:"size:255"`
+    Resource    string `gorm:"size:50"` // 'product', 'order', 'user', etc.
+    Action      string `gorm:"size:50"` // 'create', 'read', 'update', 'delete'
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+}
+
+// Bảng trung gian để map User và Permission
+type UserPermission struct {
+    UserID       uint `gorm:"primaryKey"`
+    PermissionID uint `gorm:"primaryKey"`
+}
+
+// Bảng trung gian để map Role và Permission
+type RolePermission struct {
+    RoleID       uint `gorm:"primaryKey"`
+    PermissionID uint `gorm:"primaryKey"`
 }
 
 // Product Model
