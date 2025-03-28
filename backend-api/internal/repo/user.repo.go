@@ -65,3 +65,23 @@ func (ur * UserRepo) DeleteUser(id uint) error {
 	return ur.db.Delete(&model.User{}, id).Error
 }
 
+// get all user cho phân trang
+func (ur *UserRepo) GetAllUsers(page, limit int) ([]model.User, int64, error) {
+    var users []model.User
+    var total int64
+
+	// location to start get data from database
+    offset := (page - 1) * limit
+
+    // Đếm tổng số lượng người dùng
+    if err := ur.db.Model(&model.User{}).Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
+
+    // Lấy danh sách người dùng với phân trang
+    if err := ur.db.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+        return nil, 0, err
+    }
+
+    return users, total, nil
+}

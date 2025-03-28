@@ -2,36 +2,38 @@ package routers
 
 import (
     "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/controller"
+    "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/middleware"
     "github.com/gin-gonic/gin"
 )
 
-// RegisterUserRoutes đăng ký các routes liên quan đến người dùng
 func RegisterUserRoutes(router *gin.RouterGroup) {
     userController := controller.NewUserController()
 
-    // Nhóm routes cho user
-    userRoutes := router.Group("/users")
+    // Routes công khai không yêu cầu xác thực
+    publicRoutes := router.Group("/auth")
     {
-        userRoutes.GET("/:id", userController.GetUserByID)
+        publicRoutes.POST("/register", userController.RegisterUser)
+        publicRoutes.POST("/login", userController.Login)
+    }
+
+    // Routes yêu cầu xác thực
+    authenticatedRoutes := router.Group("/users")
+    authenticatedRoutes.Use(middleware.AuthMiddleware())
+    {
+        // Quản lý thông tin người dùng
+        authenticatedRoutes.GET("/profile", userController.GetProfile)
+        authenticatedRoutes.PUT("/profile", userController.UpdateProfileUser)
+        authenticatedRoutes.PUT("/change-password", userController.ChangePassword)
+
+        // Quản lý danh sách người dùng (chỉ dành cho admin)
+        adminRoutes := authenticatedRoutes.Group("admin")
+        adminRoutes.Use(middleware.AdminMiddleware())
+        {
+            adminRoutes.GET("", userController.GetAllUser)
+            adminRoutes.GET("/:id", userController.GetUserByID)
+            adminRoutes.PUT("/:id", userController.UpdateUser)
+            adminRoutes.DELETE("/:id", userController.DeleteUser)
+        }
     }
 }
 
-// SetupRouter cài đặt toàn bộ router chính
-func SetupRouter() *gin.Engine {
-    r := gin.Default() // Đã bao gồm Logger và Recovery middleware
-    
-    // API version group
-    v1 := r.Group("/api/v1")
-    
-    // Đăng ký các routes
-    RegisterUserRoutes(v1)
-    
-    // Thêm route ping để kiểm tra server hoạt động
-    r.GET("/ping", func(c *gin.Context) {
-        c.JSON(200, gin.H{
-            "message": "pong",
-        })
-    })
-    
-    return r
-}
