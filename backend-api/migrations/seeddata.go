@@ -28,6 +28,7 @@ func SeedRolesAndPermissions() error {
                 Description: "Can manage own products and view own orders",
                 CreatedAt:   time.Now(),
                 UpdatedAt:   time.Now(),
+
             },
             {
                 Name:        "customer",
@@ -153,7 +154,6 @@ func SeedData() error {
             Role:          "admin",
             IsActive:      true,
             EmailVerified: true,
-			LastLogin:     time.Now(),
             CreatedAt:     time.Now(),
             UpdatedAt:     time.Now(),
         }
@@ -165,7 +165,6 @@ func SeedData() error {
             Role:          "customer",
             IsActive:      true,
             EmailVerified: false,
-			LastLogin:     time.Now(),
             CreatedAt:     time.Now(),
             UpdatedAt:     time.Now(),
         }

@@ -13,7 +13,6 @@ type User struct {
     Role          string    `gorm:"size:20"` // 'admin', 'customer', 'seller'
     IsActive      bool      `gorm:"default:true"`
     EmailVerified bool      `gorm:"default:false"`
-    LastLogin     time.Time
     CreatedAt     time.Time
     UpdatedAt     time.Time
     DeletedAt     *time.Time `gorm:"index"`
