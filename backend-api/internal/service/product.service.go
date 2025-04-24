@@ -20,6 +20,49 @@ func NewProductService() *ProductService {
 	}
 }
 
+
+
+// Get Product by Category
+func(ps * ProductService) GetProductsByCategory(category string) ([]model.Product, error){
+	global.Logger.Info("GetProductByCategory", zap.String("Category", category))
+	return ps.productRepo.GetProductByCategory(category)
+}
+
+
+func (ps * ProductService) GetAllProducts(limit int, page int, sortBy string, orderBy string ) ([]model.Product,int64, error) {
+	
+	offset := (page - 1) * limit
+	// validate sortby and orderby 
+	allowedSortFileds := map[string]bool{
+		"id" : true, 
+		"name": true,
+		"price": true,
+		"created_at": true,
+	}
+
+	if !allowedSortFileds[sortBy] {
+		sortBy = "id"
+	}
+
+	// validate orderby
+	allowedOrderBy := map[string]bool{
+		"asc": true,
+		"desc": true,
+	}
+	if !allowedOrderBy[orderBy] {
+		orderBy = "asc"
+	}
+
+	products, total, err := ps.productRepo.GetAllProducts(limit, offset, sortBy, orderBy)
+
+	if err != nil {	
+		global.Logger.Error("Error to get products", zap.Error(err))
+		return nil, 0, err
+	}
+
+	return products, total, nil
+}
+
 func (ps *ProductService) GetProductByID(id uint) (*model.Product, error) {
 	global.Logger.Info("GetProductByID", zap.Uint("id", id))
 	return ps.productRepo.GetProductByID(id)

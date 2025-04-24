@@ -9,7 +9,7 @@ func SetupRouter() *gin.Engine {
     
     // use CORS middleware
     r.Use(middleware.CORSMiddleware())
-
+    
 
     // API version group
     v1 := r.Group("/api/v1")
