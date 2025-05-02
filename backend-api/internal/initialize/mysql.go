@@ -10,6 +10,7 @@ import (
     "log"
     "os"
     "time"
+    
 )
 
 // InitMysql khởi tạo kết nối MySQL
@@ -60,6 +61,8 @@ func InitMysql() {
     sqlDB.SetMaxIdleConns(10)
     sqlDB.SetMaxOpenConns(100)
     sqlDB.SetConnMaxLifetime(time.Hour)
+
+   
     
     // Kiểm tra kết nối
     err = sqlDB.Ping()

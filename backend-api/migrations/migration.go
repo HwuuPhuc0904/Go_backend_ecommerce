@@ -23,8 +23,8 @@ func MigrateDB() error {
     }
 
     //seed data
-    SeedRolesAndPermissions()
-    SeedData()
+    // SeedRolesAndPermissions()
+    // SeedData()
 
     global.Logger.Info("Database migration completed successfully")
     return nil
