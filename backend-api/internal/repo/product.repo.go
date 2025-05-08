@@ -5,6 +5,8 @@ import(
 	model "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/models"
 	"gorm.io/gorm"
 	"errors"
+	"fmt"
+	"go.uber.org/zap"
 )
 
 type ProductRepo struct {
@@ -15,6 +17,48 @@ func NewProductRepo() *ProductRepo {
 	return &ProductRepo{
 		db: global.DB,
 	}
+}
+
+func(pr *ProductRepo) GetProductByCategory(category string) ([]model.Product, error) {
+    var products []model.Product 
+
+    // Sử dụng LIKE để tìm kiếm danh mục trong chuỗi chứa nhiều danh mục
+    searchPattern := "%" + category + "%"
+    
+    result := pr.db.Where("categories LIKE ?", searchPattern).Find(&products)
+    if result.Error != nil {
+        global.Logger.Error("Error while find products by category", zap.Error(result.Error))
+        return nil, result.Error
+    }
+    
+    if len(products) == 0 {
+        global.Logger.Info("No products in category", zap.String("category", category))
+        return nil, errors.New("no products in category")
+    }
+    
+    return products, nil
+}
+
+func (pr * ProductRepo) GetAllProducts(limit int, offset int, sortBy string, orderBy string) ([]model.Product, int64, error) {
+	var products []model.Product
+	var total int64
+
+	query := pr.db.Model(&model.Product{})
+	
+	if err := query.Count(&total).Error; err != nil {
+        global.Logger.Error("Error counting products", zap.Error(err))
+        return nil, 0, err
+    }
+
+	if err := query.
+        Order(fmt.Sprintf("%s %s", sortBy, orderBy)).
+        Limit(limit).
+        Offset(offset).
+        Find(&products).Error; err != nil {
+        global.Logger.Error("Error fetching products", zap.Error(err))
+        return nil, 0, err
+    }
+	return products, total, nil
 }
 
 func (pr * ProductRepo) GetProductByID(id uint) (*model.Product, error) {

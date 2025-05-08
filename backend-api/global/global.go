@@ -11,4 +11,5 @@ var (
 	Config setting.Config
 	Logger *logger.LoggerZap
 	DB *gorm.DB
+	CORS *setting.CORSSetting
 )

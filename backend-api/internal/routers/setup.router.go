@@ -1,11 +1,16 @@
 package routers
 import(
 	"github.com/gin-gonic/gin"
+    "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/middleware"
 )
 
 func SetupRouter() *gin.Engine {
     r := gin.Default() // Đã bao gồm Logger và Recovery middleware
     
+    // use CORS middleware
+    r.Use(middleware.CORSMiddleware())
+    
+
     // API version group
     v1 := r.Group("/api/v1")
     

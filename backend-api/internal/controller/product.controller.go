@@ -1,9 +1,10 @@
 package controller
 
 import(
-	"GOLANG/github.com/HwuuPhuc0904/backend-api/global"
+    "GOLANG/github.com/HwuuPhuc0904/backend-api/global"
     model "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/models"
     "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/service"
+    "math"
     "net/http"
     "strconv"
     "github.com/gin-gonic/gin"
@@ -18,6 +19,73 @@ func NewProductController() *ProductController {
 	return &ProductController {
 		productService: service.NewProductService(),
 	}
+}
+
+
+
+// GetAllProducts
+func(pc * ProductController) GetAllProducts(c * gin.Context) {
+    // Get parameters from request
+    limitStr := c.DefaultQuery("limit", "10")
+    pageStr := c.DefaultQuery("page", "1")
+    shortBy := c.DefaultQuery("shortBy", "id")
+    orderBy := c.DefaultQuery("shortType", "asc")
+
+    // Convert parameters to int
+    limit, err := strconv.Atoi(limitStr)
+    if err != nil || limit <= 0 {
+        limit = 10
+    }
+
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
+
+
+
+
+
+    products, total,err := pc.productService.GetAllProducts(limit, page, shortBy, orderBy)
+    
+    if err != nil {
+        global.Logger.Error("Failed to get products", zap.Error(err))
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to get products",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "data": products,
+        "pagination": gin.H{
+            "total":       total,
+            "limit":       limit,
+            "page":        page,
+            "total_pages": int(math.Ceil(float64(total) / float64(limit))),
+        },
+    }) 
+}
+
+// GetProductsByCategoryID
+func(pc * ProductController) GetProductsByCategory(c * gin.Context){
+    // Get category ID from URL
+    categoryIDStr := c.Param("categoryId")
+
+
+    // Get products by category ID
+    products, err := pc.productService.GetProductsByCategory(categoryIDStr)
+    if err != nil {
+        global.Logger.Error("Failed to get products by category ID", zap.Error(err))
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to get products by category ID",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "data": products,
+    })
 }
 
 func (pc *ProductController) GetProductByID(c *gin.Context) {
@@ -51,7 +119,7 @@ func (c *ProductController) CreateProduct(ctx *gin.Context) {
     // Tạm thời hardcode userID cho mục đích test
     var userID uint = 1
     
-    // Bind JSON request vào model
+    // Bind JSON request vào modelCate
     var product model.Product
     if err := ctx.ShouldBindJSON(&product); err != nil {
         global.Logger.Error("Invalid product data", zap.Error(err))

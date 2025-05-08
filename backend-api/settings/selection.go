@@ -3,6 +3,7 @@ package setting
 type Config struct {
 	MySQL MySQLSettings `mapstructure:"mysql"`
 	LoggerSetting LoggerSetting `mapstructure:"logger"`
+	CORS CORSSetting `mapstructure:"cors"`
 }
 
 
@@ -21,4 +22,13 @@ type LoggerSetting struct {
 	MaxAge int `mapstructure:"maxage"`
 	Compress bool `mapstructure:"compress"`
 	FilePath string `mapstructure:"filepath"`
+}
+
+type CORSSetting struct {
+    AllowOrigins     []string `mapstructure:"allow_origins"`
+    AllowMethods     []string `mapstructure:"allow_methods"`
+    AllowHeaders     []string `mapstructure:"allow_headers"`
+    ExposeHeaders    []string `mapstructure:"expose_headers"`
+    AllowCredentials bool     `mapstructure:"allow_credentials"`
+    MaxAge           int      `mapstructure:"max_age"`
 }

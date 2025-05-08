@@ -24,11 +24,4 @@ func LoadConfig() {
     if err := v.Unmarshal(&global.Config); err != nil {
         panic(fmt.Errorf("unable to decode into struct: %w", err))
     }
-
-    // In thông tin cấu hình
-    fmt.Printf("MySQL Configuration - Host: %s, Port: %s, User: %s, Database: %s\n", 
-        global.Config.MySQL.Host, 
-        global.Config.MySQL.Port, 
-        global.Config.MySQL.Username, 
-        global.Config.MySQL.Database)
 }

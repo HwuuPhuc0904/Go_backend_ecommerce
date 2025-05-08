@@ -60,15 +60,33 @@ func (us *UserService) CreateUser(user *model.User) error {
 //Update User Information
 
 func (us *UserService) UpdateUser(user_update *model.User) error {
-	extisting, err := us.UserRepo.GetUserByID(user_update.ID)
-	if err != nil {
-		return err
-	}
-	extisting.Name = user_update.Name
-	extisting.Email = user_update.Email
-	extisting.UpdatedAt = time.Now()
-	
-	return us.UserRepo.UpdateUser(extisting)
+	existing, err := us.UserRepo.GetUserByID(user_update.ID)
+    if err != nil {
+        return err 
+    }
+    if user_update.Name != "" {
+        existing.Name = user_update.Name
+    }
+    if user_update.Email != "" {
+		// add logic checking email before update
+        existing.Email = user_update.Email
+    }
+    if user_update.Birthday != nil {
+        existing.Birthday = user_update.Birthday
+    }
+    if user_update.Language != "" {
+        existing.Language = user_update.Language
+    }
+    if user_update.Country != "" {
+        existing.Country = user_update.Country
+    }
+    if user_update.Gender != "" {
+        existing.Gender = user_update.Gender
+    }
+
+    existing.UpdatedAt = time.Now()
+
+    return us.UserRepo.UpdateUser(existing) 
 }
 
 //Delete User

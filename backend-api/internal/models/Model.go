@@ -13,6 +13,10 @@ type User struct {
     Role          string    `gorm:"size:20"` // 'admin', 'customer', 'seller'
     IsActive      bool      `gorm:"default:true"`
     EmailVerified bool      `gorm:"default:false"`
+    Birthday      *time.Time  
+    Language      string    `gorm:"size:20"` // 'en', 'vn', etc.
+    Country       string    `gorm:"size:50"`
+    Gender        string    `gorm:"size:10"` // male , female, gay
     CreatedAt     time.Time
     UpdatedAt     time.Time
     DeletedAt     *time.Time `gorm:"index"`
