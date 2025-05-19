@@ -10,6 +10,7 @@ import (
     "go.uber.org/zap"
 )
 
+
 // AuthMiddleware kiểm tra người dùng đã đăng nhập hay chưa
 func AuthMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {

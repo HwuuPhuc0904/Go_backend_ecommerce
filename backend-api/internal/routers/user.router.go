@@ -15,13 +15,13 @@ func RegisterUserRoutes(router *gin.RouterGroup) {
         publicRoutes.POST("/register", userController.RegisterUser)
         publicRoutes.POST("/login", userController.Login)
     }
-
+                                                                                                                    
     // Routes yêu cầu xác thực
     authenticatedRoutes := router.Group("/users")
     authenticatedRoutes.Use(middleware.AuthMiddleware())
     {
         // Quản lý thông tin người dùng
-        authenticatedRoutes.GET("/profile", userController.GetProfile)
+        // authenticatedRoutes.GET("/profile", userController.GetProfile)
         authenticatedRoutes.PUT("/profile", userController.UpdateProfileUser)
         authenticatedRoutes.PUT("/change-password", userController.ChangePassword)
 

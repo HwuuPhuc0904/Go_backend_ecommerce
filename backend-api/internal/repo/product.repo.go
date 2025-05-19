@@ -19,24 +19,38 @@ func NewProductRepo() *ProductRepo {
 	}
 }
 
-func(pr *ProductRepo) GetProductByCategory(category string) ([]model.Product, error) {
+func(pr *ProductRepo) GetProductByCategory(category string, limit int , offset int, shortBy, orderBy string) ([]model.Product, int64, error) {
     var products []model.Product 
+	var total int64
 
-    // Sử dụng LIKE để tìm kiếm danh mục trong chuỗi chứa nhiều danh mục
     searchPattern := "%" + category + "%"
-    
-    result := pr.db.Where("categories LIKE ?", searchPattern).Find(&products)
-    if result.Error != nil {
-        global.Logger.Error("Error while find products by category", zap.Error(result.Error))
-        return nil, result.Error
+        
+	query := pr.db.Model(&model.Product{}).Where("categories LIKE ?", searchPattern)
+	
+	if err := query.Count(&total).Error; err != nil {
+        global.Logger.Error("Error counting products", zap.Error(err))
+        return nil, 0, err
     }
-    
-    if len(products) == 0 {
-        global.Logger.Info("No products in category", zap.String("category", category))
-        return nil, errors.New("no products in category")
+
+	if shortBy == "" {
+		shortBy = "id"
+	}
+	if orderBy != "asc" && orderBy != "desc" {
+		orderBy = "asc"
+	}
+
+	order := shortBy + " " + orderBy
+
+	if err := pr.db.Where("categories LIKE ?", searchPattern).
+        Order(order).
+        Limit(limit).
+        Offset(offset).
+        Find(&products).Error; err != nil {
+        global.Logger.Error("Error fetching products", zap.Error(err))
+        return nil, 0, err
     }
-    
-    return products, nil
+
+    return products, total, nil
 }
 
 func (pr * ProductRepo) GetAllProducts(limit int, offset int, sortBy string, orderBy string) ([]model.Product, int64, error) {

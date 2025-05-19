@@ -193,7 +193,6 @@ func SeedData() error {
         address := models.Address{
             UserID:        adminUser.ID,
             RecipientName: "Admin User",
-            StreetAddress: "123 Admin St",
             City:          "Ho Chi Minh City",
             State:         "HCM",
             PostalCode:    "70000",

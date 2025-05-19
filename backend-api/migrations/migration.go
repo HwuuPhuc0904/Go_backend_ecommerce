@@ -10,6 +10,7 @@ import (
 
 func MigrateDB() error {
     global.Logger.Info("Running database migrations...")
+    
     err := global.DB.AutoMigrate(
         &models.User{}, &models.Product{},
         &models.Order{}, &models.OrderItem{}, &models.Payment{}, &models.Shipping{},

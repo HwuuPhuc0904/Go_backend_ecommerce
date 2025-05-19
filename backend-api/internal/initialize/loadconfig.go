@@ -8,7 +8,7 @@ import(
 )
 
 func LoadConfig() {
-    configPath := filepath.Join("/home/binperdock/GOLANG/github.com/HwuuPhuc0904/backend-api/configs")
+    configPath := filepath.Join("/home/perdokcat/GolangEcomerce/Go_backend_ecommerce/backend-api/configs")
     v := viper.New() // Đổi tên biến để tránh xung đột
     v.AddConfigPath(configPath)
     v.SetConfigName("local")

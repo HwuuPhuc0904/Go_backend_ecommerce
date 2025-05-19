@@ -23,9 +23,35 @@ func NewProductService() *ProductService {
 
 
 // Get Product by Category
-func(ps * ProductService) GetProductsByCategory(category string) ([]model.Product, error){
+func(ps * ProductService) GetProductsByCategory(category string, limit int, page int , shortBy string, orderBy string ) ([]model.Product,int64, error){
 	global.Logger.Info("GetProductByCategory", zap.String("Category", category))
-	return ps.productRepo.GetProductByCategory(category)
+	
+
+	offset := (page - 1) * limit
+
+	// validate sortby and orderby
+	allowedSortFileds := map[string]bool{
+		"id": true,
+		"name": true,
+		"price": true,
+		"created_at": true,	
+	}
+
+	if !allowedSortFileds[shortBy] {
+		shortBy = "id"
+	}
+	
+	allowedOrderBy := map[string]bool {
+		"asc": true,
+		"desc": true,
+	}
+
+	if !allowedOrderBy[orderBy] {
+		orderBy = "asc"
+	}
+
+	return ps.productRepo.GetProductByCategory(category, limit, offset, shortBy, orderBy)
+
 }
 
 

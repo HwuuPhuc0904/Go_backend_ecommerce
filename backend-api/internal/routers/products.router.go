@@ -12,9 +12,11 @@ func RegisterProductRoutes(router *gin.RouterGroup) {
     // Routes công khai
     publicRoutes := router.Group("/products")
     {
+        publicRoutes.GET("/category/:categoryId", productController.GetProductsByCategory)
         publicRoutes.GET("", productController.GetAllProducts)
         publicRoutes.GET("/:id", productController.GetProductByID)
-        publicRoutes.GET("/category/:categoryId", productController.GetProductsByCategory)
+        
     }
 }
 
+    

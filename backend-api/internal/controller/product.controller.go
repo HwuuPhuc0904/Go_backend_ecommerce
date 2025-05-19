@@ -71,10 +71,27 @@ func(pc * ProductController) GetAllProducts(c * gin.Context) {
 func(pc * ProductController) GetProductsByCategory(c * gin.Context){
     // Get category ID from URL
     categoryIDStr := c.Param("categoryId")
+    
+    limitStr := c.DefaultQuery("limit", "10")
+    pageStr := c.DefaultQuery("page", "1")
+    shortBy := c.DefaultQuery("shortBy", "id")
+    orderBy := c.DefaultQuery("shortType", "asc")
+
+    // Convert parameters to int
+    limit, err := strconv.Atoi(limitStr)
+    if err != nil || limit <= 0 {
+        limit = 10
+    }
+
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
+
 
 
     // Get products by category ID
-    products, err := pc.productService.GetProductsByCategory(categoryIDStr)
+    products, total, err := pc.productService.GetProductsByCategory(categoryIDStr, limit, page, shortBy, orderBy)
     if err != nil {
         global.Logger.Error("Failed to get products by category ID", zap.Error(err))
         c.JSON(http.StatusInternalServerError, gin.H{
@@ -85,6 +102,12 @@ func(pc * ProductController) GetProductsByCategory(c * gin.Context){
 
     c.JSON(http.StatusOK, gin.H{
         "data": products,
+        "pagination": gin.H{
+            "total":       total,
+            "limit":       limit,
+            "page":        page,
+            "total_pages": int(math.Ceil(float64(total) / float64(limit))),
+        },
     })
 }
 
