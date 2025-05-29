@@ -149,3 +149,20 @@ func (ps *ProductService) UpdateStockProduct(id uint, quantity int) error {
 	global.Logger.Info("UpdateStockProduct", zap.Uint("id", id), zap.Int("quantity", quantity))
 	return ps.productRepo.UpdateStockProduct(id, quantity)
 }
+
+func (ps *ProductService) GetProductReviews(productID uint, limit int, page int, sortBy, orderBy string) ([]model.Review, int64, error) {
+	global.Logger.Info("GetProductReviews", zap.Uint("productID", productID), zap.Int("limit", limit), zap.Int("page", page))
+	offset := (page - 1) * limit
+	return ps.productRepo.GetProductReviews(productID, limit, offset)
+}
+
+func (ps *ProductService) CreateProductReview(review *model.Review) error {
+	review.Comment = strings.TrimSpace(review.Comment)
+	if review.Comment == "" {
+		return errors.New("review comment is required")
+	}
+	global.Logger.Info("CreateProductReview", zap.Uint("ProductID", review.ProductID), zap.String("Comment", review.Comment), zap.Int("Rating", review.Rating))
+	return ps.productRepo.CreateProductReview(review)
+}
+
+

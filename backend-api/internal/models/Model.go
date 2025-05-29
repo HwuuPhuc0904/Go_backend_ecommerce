@@ -115,6 +115,7 @@ type Order struct {
     CreatedAt          time.Time     `json:"created_at"`
     UpdatedAt          time.Time     `json:"updated_at"`
     DeletedAt          *time.Time    `gorm:"index" json:"deleted_at,omitempty"`
+    CancelReason       string         `gorm:"type:text" json:"cancel_reason,omitempty"` // Reason for cancellation, if applicable
 }
 
 // Order Item Model
@@ -198,25 +199,40 @@ type Cart struct {
 
 // Address Model
 type Address struct {
-    ID                uint          `gorm:"primaryKey" json:"id"`
-    UserID            uint          `json:"user_id"`
-    User              User          `gorm:"foreignKey:UserID" json:"-"` 
-    AddressType       string        `gorm:"size:20" json:"address_type"` // 'billing', 'shipping', 'both'
-    IsDefault         bool          `gorm:"default:false" json:"is_default"`
-    RecipientName     string        `gorm:"size:100" json:"recipient_name"`
-    CompanyName       string        `gorm:"size:100" json:"company_name,omitempty"`
-    StreetAddress1    string        `gorm:"size:255" json:"street_address_1"`
-    StreetAddress2    string        `gorm:"size:255" json:"street_address_2,omitempty"`
-    City              string        `gorm:"size:100" json:"city"`
-    State             string        `gorm:"size:100" json:"state"`
-    PostalCode        string        `gorm:"size:20" json:"postal_code"`
-    Country           string        `gorm:"size:50" json:"country"`
-    Phone             string        `gorm:"size:20" json:"phone"`
-    AlternatePhone    string        `gorm:"size:20" json:"alternate_phone,omitempty"`
-    Email             string        `gorm:"size:100" json:"email,omitempty"`
-    DeliveryNotes     string        `gorm:"type:text" json:"delivery_notes,omitempty"`
-    Latitude          float64       `json:"latitude,omitempty"`  // For map integration
-    Longitude         float64       `json:"longitude,omitempty"` // For map integration
-    CreatedAt         time.Time     `json:"created_at"`
-    UpdatedAt         time.Time     `json:"updated_at"`
+    ID            uint      `gorm:"primaryKey" json:"id"`
+    UserID        uint      `gorm:"not null" json:"user_id"` // ID người dùng, nên not null
+    User          User      `gorm:"foreignKey:UserID" json:"-"`
+    AddressType   string    `gorm:"size:20" json:"address_type"`     // Loại địa chỉ: 'billing' (thanh toán), 'shipping' (giao hàng), 'both' (cả hai)
+    IsDefault     bool      `gorm:"default:false" json:"is_default"` // Địa chỉ mặc định?
+    RecipientName string    `gorm:"size:100;not null" json:"recipient_name"` // Tên người nhận, nên not null
+    CompanyName   string    `gorm:"size:100" json:"company_name,omitempty"`  // Tên công ty (nếu có)
+    Phone         string    `gorm:"size:20;not null" json:"phone"`           // Số điện thoại, nên not null
+    AlternatePhone string   `gorm:"size:20" json:"alternate_phone,omitempty"` // Số điện thoại khác (nếu có)
+    Email         string    `gorm:"size:100" json:"email,omitempty"`          // Email (nếu có)
+
+    // --- Thông tin địa chỉ chi tiết theo chuẩn Việt Nam ---
+    StreetAddress string    `gorm:"size:255;not null" json:"street_address"`
+    // ^ Số nhà, tên ngõ/ngách/hẻm (nếu có), tên đường phố.
+    // Ví dụ: "Số 10, ngõ 5, đường Trần Duy Hưng" hoặc "Thôn ABC, Xã XYZ" (nếu không có tên đường cụ thể)
+
+    WardName      string    `gorm:"size:100;not null" json:"ward_name"`         // Tên Phường/Xã
+    WardCode      string    `gorm:"size:20;not null" json:"ward_code"`          // Mã Phường/Xã (quan trọng cho tích hợp API, ví dụ từ provinces.open-api.vn)
+
+    DistrictName  string    `gorm:"size:100;not null" json:"district_name"`     // Tên Quận/Huyện/Thị xã/Thành phố thuộc tỉnh
+    DistrictCode  string    `gorm:"size:20;not null" json:"district_code"`      // Mã Quận/Huyện (quan trọng cho tích hợp API)
+
+    ProvinceName  string    `gorm:"size:100;not null" json:"province_name"`     // Tên Tỉnh/Thành phố trực thuộc Trung ương
+    ProvinceCode  string    `gorm:"size:20;not null" json:"province_code"`      // Mã Tỉnh/Thành phố (quan trọng cho tích hợp API)
+
+    Country       string    `gorm:"size:50;default:'Việt Nam';not null" json:"country"` // Quốc gia, mặc định là 'Việt Nam'
+
+    PostalCode    string    `gorm:"size:10" json:"postal_code,omitempty"`      // Mã bưu chính (Việt Nam hiện dùng mã 6 số, trước đây là 5 số)
+
+    // --- Thông tin bổ sung ---
+    DeliveryNotes string    `gorm:"type:text" json:"delivery_notes,omitempty"` // Ghi chú giao hàng
+    Latitude      float64   `json:"latitude,omitempty"`                        // Vĩ độ (cho tích hợp bản đồ)
+    Longitude     float64   `json:"longitude,omitempty"`                       // Kinh độ (cho tích hợp bản đồ)
+
+    CreatedAt     time.Time `json:"created_at"`
+    UpdatedAt     time.Time `json:"updated_at"`
 }

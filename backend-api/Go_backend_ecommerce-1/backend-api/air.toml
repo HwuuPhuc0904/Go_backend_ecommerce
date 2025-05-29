@@ -1,0 +1,45 @@
+# Configuration for Air tool
+
+# Root of the project
+root = "."
+
+# Build settings
+[build]
+  cmd = "go build -o ./bin/server ./cmd/server/main.go"
+  bin = "./bin/server"
+  watch_dir = "."
+
+# Watch settings
+[watch]
+  # Watch for changes in these directories
+  include = [
+    "internal/**/*",
+    "cmd/**/*",
+    "migrations/**/*",
+    "pkg/**/*",
+    "settings/**/*",
+    "global/**/*"
+  ]
+  exclude = [
+    "vendor/**/*",
+    "bin/**/*",
+    "deployments/**/*",
+    "scripts/**/*",
+    "docker-compose*.yml",
+    ".env*",
+    ".git/**/*"
+  ]
+
+# Log settings
+[log]
+  time_format = "2006-01-02 15:04:05"
+  level = "info"
+
+# Reload settings
+[reload]
+  delay = "100ms"
+  full_reload = false
+
+# Environment settings
+[env]
+  GO_ENV = "development"

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-backend-ecommerce
+  labels:
+    app: go-backend-ecommerce
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-backend-ecommerce
+  template:
+    metadata:
+      labels:
+        app: go-backend-ecommerce
+    spec:
+      containers:
+      - name: go-backend-ecommerce
+        image: your-docker-repo/go-backend-ecommerce:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: database_url
+        - name: PORT
+          value: "8080"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"

@@ -1,0 +1,112 @@
+// filepath: /home/perdokcat/GolangEcomerce/Go_backend_ecommerce/backend-api/internal/models/Model.go
+package models
+
+import (
+    "time"
+)
+
+// User Model
+type User struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    Username  string    `json:"username" gorm:"unique;not null"`
+    Password  string    `json:"-"`
+    Email     string    `json:"email" gorm:"unique;not null"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Role Model
+type Role struct {
+    ID   uint   `json:"id" gorm:"primaryKey"`
+    Name string `json:"name" gorm:"unique;not null"`
+}
+
+// Permission Model - Định nghĩa các quyền chi tiết
+type Permission struct {
+    ID   uint   `json:"id" gorm:"primaryKey"`
+    Name string `json:"name" gorm:"unique;not null"`
+}
+
+// Bảng trung gian để map User và Permission
+type UserPermission struct {
+    UserID      uint `gorm:"primaryKey"`
+    PermissionID uint `gorm:"primaryKey"`
+}
+
+// Bảng trung gian để map Role và Permission
+type RolePermission struct {
+    RoleID      uint `gorm:"primaryKey"`
+    PermissionID uint `gorm:"primaryKey"`
+}
+
+// Product Model
+type Product struct {
+    ID          uint      `json:"id" gorm:"primaryKey"`
+    Name        string    `json:"name" gorm:"not null"`
+    Description string    `json:"description"`
+    Price       float64   `json:"price" gorm:"not null"`
+    CreatedAt   time.Time `json:"created_at"`
+    UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// Order Model
+type Order struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    UserID    uint      `json:"user_id" gorm:"not null"`
+    Total     float64   `json:"total" gorm:"not null"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Order Item Model
+type OrderItem struct {
+    ID        uint    `json:"id" gorm:"primaryKey"`
+    OrderID   uint    `json:"order_id" gorm:"not null"`
+    ProductID uint    `json:"product_id" gorm:"not null"`
+    Quantity  int     `json:"quantity" gorm:"not null"`
+    Price     float64 `json:"price" gorm:"not null"`
+}
+
+// Payment Model
+type Payment struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    OrderID   uint      `json:"order_id" gorm:"not null"`
+    Amount    float64   `json:"amount" gorm:"not null"`
+    CreatedAt time.Time `json:"created_at"`
+}
+
+// Shipping Model
+type Shipping struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    OrderID   uint      `json:"order_id" gorm:"not null"`
+    Address   string    `json:"address" gorm:"not null"`
+    CreatedAt time.Time `json:"created_at"`
+}
+
+// Review Model
+type Review struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    ProductID uint      `json:"product_id" gorm:"not null"`
+    UserID    uint      `json:"user_id" gorm:"not null"`
+    Rating    int       `json:"rating" gorm:"not null"`
+    Comment   string    `json:"comment"`
+    CreatedAt time.Time `json:"created_at"`
+}
+
+// Cart Model
+type Cart struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    UserID    uint      `json:"user_id" gorm:"not null"`
+    CreatedAt time.Time `json:"created_at"`
+}
+
+// Address Model
+type Address struct {
+    ID        uint      `json:"id" gorm:"primaryKey"`
+    UserID    uint      `json:"user_id" gorm:"not null"`
+    Street    string    `json:"street" gorm:"not null"`
+    City      string    `json:"city" gorm:"not null"`
+    State     string    `json:"state" gorm:"not null"`
+    ZipCode   string    `json:"zip_code" gorm:"not null"`
+    CreatedAt time.Time `json:"created_at"`
+}

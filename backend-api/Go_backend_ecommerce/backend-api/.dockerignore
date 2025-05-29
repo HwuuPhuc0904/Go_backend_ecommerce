@@ -1,0 +1,41 @@
+# Ignore the Go module files
+go.mod
+go.sum
+
+# Ignore the build directory
+build/
+
+# Ignore the vendor directory
+vendor/
+
+# Ignore the local environment files
+.env
+.env.example
+
+# Ignore the Docker-related files
+Dockerfile
+.dockerignore
+
+# Ignore the logs
+*.log
+
+# Ignore the temporary files
+tmp/
+temp/
+
+# Ignore the IDE/editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignore the test coverage files
+coverage.out
+*.out
+
+# Ignore the database files
+*.db
+*.sql
+
+# Ignore the node_modules directory if present
+node_modules/

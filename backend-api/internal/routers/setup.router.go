@@ -17,6 +17,7 @@ func SetupRouter() *gin.Engine {
     // Đăng ký các routes
     RegisterUserRoutes(v1)
     RegisterProductRoutes(v1)
+    RegisterOrderRoutes(v1)
     
     // Thêm route ping để kiểm tra server hoạt động
     r.GET("/ping", func(c *gin.Context) {

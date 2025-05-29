@@ -1,0 +1,27 @@
+// filepath: /home/perdokcat/GolangEcomerce/Go_backend_ecommerce/backend-api/settings/settings.go
+package settings
+
+type Config struct {
+    Server   ServerConfig
+    Database DatabaseConfig
+    CORS     CORSConfig
+}
+
+type ServerConfig struct {
+    Port string
+}
+
+type DatabaseConfig struct {
+    Host     string
+    Port     string
+    User     string
+    Password string
+    Name     string
+}
+
+type CORSConfig struct {
+    AllowedOrigins []string
+    AllowedMethods []string
+    AllowedHeaders []string
+    AllowCredentials bool
+}

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: go-backend-config
+data:
+  DATABASE_URL: "postgres://user:password@postgres:5432/dbname?sslmode=disable"
+  PORT: "8080"
+  ENV: "development"
+  CORS_ORIGINS: "*"
+  JWT_SECRET: "your_jwt_secret"

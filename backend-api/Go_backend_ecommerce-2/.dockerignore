@@ -1,0 +1,38 @@
+# Ignore the Go module files
+go.mod
+go.sum
+
+# Ignore the local environment files
+.env
+.env.example
+
+# Ignore the build artifacts
+*.exe
+*.out
+*.test
+
+# Ignore the vendor directory
+vendor/
+
+# Ignore the logs
+*.log
+
+# Ignore the temporary files
+*.tmp
+*.temp
+
+# Ignore the IDE/editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignore the Dockerfile and docker-compose files in the deployments directory
+deployments/docker/postgres/Dockerfile
+deployments/docker/nginx/Dockerfile
+docker-compose.yml
+docker-compose.dev.yml
+docker-compose.prod.yml
+
+# Ignore the migrations directory
+migrations/

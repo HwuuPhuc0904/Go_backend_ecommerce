@@ -127,3 +127,28 @@ func (pr * ProductRepo) SearchProduct(keyword string) ([]model.Product, error) {
 	return products, nil
 }
 
+func (pr * ProductRepo) UpdateProductStock(id uint, quantity int) error {
+	return pr.db.Model(&model.Product{}).Where("id = ?", id).Update("stock", quantity).Error
+}
+
+func (pr * ProductRepo) GetProductReviews(productID uint, limit int, offset int) ([]model.Review, int64, error) {
+	var reviews []model.Review
+	var total int64
+
+	if err := pr.db.Model(&model.Review{}).Where("product_id = ?", productID).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := pr.db.Where("product_id = ?", productID).
+		Limit(limit).
+		Offset(offset).
+		Find(&reviews).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return reviews, total, nil
+}
+
+func (pr * ProductRepo) CreateProductReview(review *model.Review) error {
+	return pr.db.Create(review).Error
+}

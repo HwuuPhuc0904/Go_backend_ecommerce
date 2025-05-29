@@ -9,6 +9,7 @@ import(
     "strconv"
     "github.com/gin-gonic/gin"
     "go.uber.org/zap"
+    "time"
 )
 
 type ProductController struct {
@@ -273,5 +274,108 @@ func (c *ProductController) DeleteProduct(ctx *gin.Context) {
     // Trả về kết quả
     ctx.JSON(http.StatusOK, gin.H{
         "message": "Product deleted successfully",
+    })
+}
+
+// GetProductReviews 
+func (pc *ProductController) GetProductReviews(c * gin.Context) {
+    idStr := c.Param("id")
+
+    // Pagination: 
+    limitStr := c.DefaultQuery("limit", "5")
+    pageStr := c.DefaultQuery("page", "1")
+    shortBy := c.DefaultQuery("shortBy", "id")
+    orderBy := c.DefaultQuery("shortType", "asc")
+
+    limit, err := strconv.Atoi(limitStr)
+    if err != nil || limit <= 0 {
+        limit = 5
+    }
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
+    id, err := strconv.ParseUint(idStr, 10, 64)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Invalid product ID",
+        })
+        return
+    }
+    reviews, total, err := pc.productService.GetProductReviews(uint(id), limit, page, shortBy, orderBy)
+    if err != nil {
+        global.Logger.Error("Failed to get product reviews", zap.Error(err), zap.String("id", idStr))
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to get product reviews",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "data": reviews,
+        "pagination": gin.H{
+            "total":       total,
+            "limit":       limit,
+            "page":        page,
+        },
+    })
+}
+
+// createProductReview
+func (pc *ProductController) CreateProductReview(c *gin.Context) {
+    userID, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": "User not authenticated",
+        })
+        return
+    }
+    // Bind JSON request to mode
+    
+    
+    idStr := c.Param("id")
+    // Parse product ID
+    id, err := strconv.ParseUint(idStr, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Invalid product ID",
+        })
+        return
+    }
+    
+    var review model.Review
+    review.ProductID = uint(id)
+    review.UserID = uint(userID.(uint)) 
+    review.ReviewDate = time.Now()
+
+    if err := c.ShouldBindJSON(&review); err != nil {
+        global.Logger.Error("Invalid review data", zap.Error(err))
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Invalid review data: " + err.Error(),
+        })
+        return
+    }
+
+    err = pc.productService.CreateProductReview(&review)
+    if err != nil {
+        global.Logger.Error("Failed to create product review", zap.Error(err), zap.String("id", idStr))
+        if err.Error() == "product not found" {
+            c.JSON(http.StatusNotFound, gin.H{
+                "error": "Product not found",
+            })
+        } else if err.Error() == "you have already reviewed this product" {
+            c.JSON(http.StatusConflict, gin.H{
+                "error": "You have already reviewed this product",
+            })
+        } else {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Failed to create product review: " + err.Error(),
+            })
+        }
+        return  
+    }
+
+    c.JSON(http.StatusCreated, gin.H{
+        "message": "Product review created successfully",
     })
 }

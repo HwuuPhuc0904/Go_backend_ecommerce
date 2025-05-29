@@ -1,0 +1,50 @@
+# Ignore the Go module files
+go.mod
+go.sum
+
+# Ignore the build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Ignore the local environment files
+.env
+.env.example
+
+# Ignore the air configuration file
+air.toml
+
+# Ignore the migrations directory
+migrations/
+
+# Ignore the scripts directory
+scripts/
+
+# Ignore the deployments directory
+deployments/
+
+# Ignore the Dockerfile and docker-compose files
+Dockerfile
+docker-compose.yml
+docker-compose.dev.yml
+docker-compose.prod.yml
+
+# Ignore the README file
+README.md
+
+# Ignore the Makefile
+Makefile
+
+# Ignore any other files or directories that are not needed for the Docker image
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+.idea/
+.vscode/
+node_modules/
+```

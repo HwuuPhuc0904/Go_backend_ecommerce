@@ -8,6 +8,7 @@ import (
 
 func RegisterUserRoutes(router *gin.RouterGroup) {
     userController := controller.NewUserController()
+    addressController := controller.NewAddressController()
 
     // Routes công khai không yêu cầu xác thực
     publicRoutes := router.Group("/auth")
@@ -21,9 +22,21 @@ func RegisterUserRoutes(router *gin.RouterGroup) {
     authenticatedRoutes.Use(middleware.AuthMiddleware())
     {
         // Quản lý thông tin người dùng
-        // authenticatedRoutes.GET("/profile", userController.GetProfile)
+        authenticatedRoutes.GET("/profile", userController.GetProfile)
         authenticatedRoutes.PUT("/profile", userController.UpdateProfileUser)
         authenticatedRoutes.PUT("/change-password", userController.ChangePassword)
+        
+        addressRoutes := authenticatedRoutes.Group("/addresses")
+        {
+            addressRoutes.GET("", addressController.GetAddresses)
+            addressRoutes.POST("", addressController.CreateAddress)
+            addressRoutes.GET("/:id", addressController.GetAddress)
+            addressRoutes.PUT("/:id", addressController.UpdateAddress)
+            addressRoutes.DELETE("/:id", addressController.DeleteAddress)
+            addressRoutes.PATCH("/:id/default", addressController.SetDefaultAddress)
+        }
+
+
 
         // Quản lý danh sách người dùng (chỉ dành cho admin)
         adminRoutes := authenticatedRoutes.Group("admin")
@@ -36,4 +49,5 @@ func RegisterUserRoutes(router *gin.RouterGroup) {
         }
     }
 }
+
 

@@ -2,6 +2,7 @@ package routers
 
 import (
     "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/controller"
+    "GOLANG/github.com/HwuuPhuc0904/backend-api/internal/middleware"
     "github.com/gin-gonic/gin"
 )
 
@@ -15,8 +16,12 @@ func RegisterProductRoutes(router *gin.RouterGroup) {
         publicRoutes.GET("/category/:categoryId", productController.GetProductsByCategory)
         publicRoutes.GET("", productController.GetAllProducts)
         publicRoutes.GET("/:id", productController.GetProductByID)
-        
+        publicRoutes.GET("/:id/reviews", productController.GetProductReviews)
+    }
+    // Routes yêu cầu xác thực
+    authenticatedRoutes := router.Group("/products")
+    authenticatedRoutes.Use(middleware.AuthMiddleware())
+    {
+         authenticatedRoutes.POST("/:id/reviews", productController.CreateProductReview)
     }
 }
-
-    

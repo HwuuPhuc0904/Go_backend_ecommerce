@@ -30,31 +30,35 @@ func (oc *OrderController) CreateOrder(c * gin.Context) {
 	}
 	
 	var orderRequest struct {
-        OrderItems         []struct {
-            ProductID uint    `json:"product_id" binding:"required"`
-            Quantity  int     `json:"quantity" binding:"required,min=1"`
-        } `json:"order_items" binding:"required,dive"`
-        ShippingAddressID  uint   `json:"shipping_address_id" binding:"required"`
-        BillingAddressID   uint   `json:"billing_address_id" binding:"required"`
-        CouponCode         string `json:"coupon_code"`
-        Notes              string `json:"notes"`
-    }
+		OrderItems []struct {
+			ProductID uint `json:"product_id" binding:"required"`
+			Quantity  int  `json:"quantity" binding:"required,min=1"`
+		} `json:"order_items" binding:"required,dive"`
+		ShippingAddressID  uint   `json:"shipping_address_id" binding:"required"`
+		BillingAddressID   uint   `json:"billing_address_id" binding:"required"`
+		ShippingMethod     string `json:"shipping_method" binding:"required"`
+		PaymentMethod      string `json:"payment_method" binding:"required"` 
+		RequireSignature   bool   `json:"require_signature"`
+		ShippingNotes      string `json:"shipping_notes"`
+		CouponCode         string `json:"coupon_code"`
+		Notes              string `json:"notes"`
+	}
 
 	if err := c.ShouldBindJSON(&orderRequest); err != nil {
 		global.Logger.Error("Failed to bind JSON products", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error should by json ": err.Error()})
 		return
 	}
-
+	now := time.Now()
 	order := &models.Order{
-        UserID:            userID.(uint),
-        OrderDate:         time.Now(),
-        Status:            "pending",
-        ShippingAddressID: orderRequest.ShippingAddressID,
-        BillingAddressID:  orderRequest.BillingAddressID,
-        CouponCode:        orderRequest.CouponCode,
-        Notes:             orderRequest.Notes,
-    }
+		UserID:            userID.(uint),
+		OrderDate:         now,
+		Status:            "pending",
+		ShippingAddressID: orderRequest.ShippingAddressID,
+		BillingAddressID:  orderRequest.BillingAddressID,
+		CouponCode:        orderRequest.CouponCode,
+		Notes:             orderRequest.Notes,
+	}
 
 	var orderItems []models.OrderItem
 	for _, item := range orderRequest.OrderItems {
@@ -65,7 +69,7 @@ func (oc *OrderController) CreateOrder(c * gin.Context) {
 		orderItems = append(orderItems, orderItem)
 	}
 
-	createdOrder, err := oc.orderService.CreateOrder(order, orderItems)
+	createdOrder, err := oc.orderService.CreateOrder(order, orderItems, orderRequest.ShippingMethod, orderRequest.PaymentMethod)
 	if err != nil {
 		global.Logger.Error("Failed to create order", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
@@ -88,7 +92,7 @@ func (oc *OrderController) GetUserOrders(c * gin.Context){
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 	status := c.Query("status")
 
-	orders, total, err := oc.orderService.GetUserOrders(userID.(uint), page, pageSize, status)
+	orders, total, err := oc.orderService.GetOrdersByUserID(userID.(uint), page, pageSize, status)
 	if err != nil {
 		global.Logger.Error("Failed to get user orders", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user orders"})
@@ -121,7 +125,7 @@ func (oc *OrderController) GetOrderByID(c * gin.Context) {
 
 	order, err := oc.orderService.GetOrderByID(uint(orderID), userID.(uint))
 	if err != nil {
-		global.Logger.Error("Failed to get order by ID", zap.Error(err), zap.Uint64("orderID", uint(orderID)))
+		global.Logger.Error("Failed to get order by ID", zap.Error(err))
 	
 		if order == nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
@@ -135,7 +139,7 @@ func (oc *OrderController) GetOrderByID(c * gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"order": order})
 }
 
-func (oc *OrderController) UpdateOrderStatus(c *gin.Context) {
+func (oc *OrderController) CancelOrder(c *gin.Context) {
 	userID, exists := c.Get("userID") 
 	if !exists {
 		global.Logger.Error("User ID not found")
@@ -160,7 +164,7 @@ func (oc *OrderController) UpdateOrderStatus(c *gin.Context) {
 		return
 	}
 
-	err = oc.orderService.UpdateOrderStatus(uint(orderID), userID.(uint), cancelRequest.cancelReason)
+	err = oc.orderService.CancelOrder(uint(orderID), userID.(uint), cancelRequest.cancelReason)
 	if err != nil {
 		global.Logger.Error("Failed to update order status", zap.Error(err), zap.Int64("orderID", orderID))		
 		if err.Error() == "order not found" {
